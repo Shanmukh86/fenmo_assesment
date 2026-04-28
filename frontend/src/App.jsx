@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { ExpenseForm } from './components/ExpenseForm';
 import { ExpenseList } from './components/ExpenseList';
+import { Dashboard } from './components/Dashboard';
+import { Navbar } from './components/Navbar';
+import { Login } from './components/Login';
 import './styles/index.css';
 
 function App() {
   const [listRefreshKey, setListRefreshKey] = useState(0);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try { return !!localStorage.getItem('expense_token'); } catch (e) { return false; }
+  });
+  const [view, setView] = useState('dashboard');
 
   const handleExpenseAdded = () => {
     // Trigger re-fetch of expenses
@@ -41,6 +48,11 @@ function App() {
         )}
 
         {/* Main Content */}
+        {!isAuthenticated && (
+          <Login onLogin={() => { setIsAuthenticated(true); setListRefreshKey(k => k + 1); setError(null); }} onError={handleError} />
+        )}
+        {isAuthenticated && <Navbar onLogout={() => { localStorage.removeItem('expense_token'); setIsAuthenticated(false); }} onNavigate={(v) => setView(v)} currentView={view} />}
+        {isAuthenticated && view === 'dashboard' && <Dashboard />}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',

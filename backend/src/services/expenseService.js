@@ -8,7 +8,7 @@ class ExpenseService {
    * Ensures no duplicate expenses are created for the same idempotency key
    */
   async createExpense(data) {
-    const { amount, category, description, date, idempotencyKey } = data;
+    const { amount, category, description, date, idempotencyKey, userId } = data;
 
     // Generate idempotency key if not provided
     const finalIdempotencyKey = idempotencyKey || uuidv4();
@@ -23,7 +23,7 @@ class ExpenseService {
         return existingExpense;
       }
 
-      // Create new expense
+      // Create new expense (associate with user)
       const expense = await prisma.expense.create({
         data: {
           amount: parseFloat(amount),
@@ -31,6 +31,7 @@ class ExpenseService {
           description: description.trim(),
           date: new Date(date),
           idempotencyKey: finalIdempotencyKey,
+          userId,
         },
       });
 
@@ -51,9 +52,10 @@ class ExpenseService {
    * Get all expenses with optional filtering and sorting
    */
   async getExpenses(filters = {}) {
-    const { category, sortBy = 'date_desc' } = filters;
+    const { category, sortBy = 'date_desc', userId } = filters;
 
     let whereClause = {};
+    if (userId) whereClause.userId = userId;
     let orderByClause = { date: 'desc' };
 
     // Apply category filter if provided
@@ -84,6 +86,7 @@ class ExpenseService {
    * Get expenses grouped by category with totals
    */
   async getExpensesByCategory() {
+    // TODO: consider accepting userId to scope per-user
     const expenses = await prisma.expense.findMany();
 
     const grouped = {};

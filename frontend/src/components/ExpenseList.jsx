@@ -111,20 +111,7 @@ export function ExpenseList({ refreshKey }) {
           <div>
             <strong>Error:</strong> {error}
           </div>
-          <button
-            onClick={handleRetry}
-            style={{
-              marginTop: '0.5rem',
-              backgroundColor: '#dc2626',
-              color: 'white',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.375rem',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            Retry
-          </button>
+          <button onClick={handleRetry} className="btn-secondary" style={{ marginTop: '0.5rem' }}>Retry</button>
         </div>
       )}
 

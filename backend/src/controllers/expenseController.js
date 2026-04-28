@@ -12,6 +12,7 @@ class ExpenseController {
       validateExpenseInput(req.body);
 
       const idempotencyKey = req.body.idempotencyKey || req.headers['idempotency-key'];
+      const userId = req.user && req.user.id
 
       const expense = await expenseService.createExpense({
         amount: req.body.amount,
@@ -19,6 +20,7 @@ class ExpenseController {
         description: req.body.description,
         date: req.body.date,
         idempotencyKey,
+        userId,
       });
 
       res.status(201).json({
@@ -40,9 +42,11 @@ class ExpenseController {
     try {
       validateGetExpensesParams(req.query);
 
+      const userId = req.user && req.user.id
       const expenses = await expenseService.getExpenses({
         category: req.query.category,
         sortBy: req.query.sortBy || 'date_desc',
+        userId,
       });
 
       const total = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
@@ -67,7 +71,8 @@ class ExpenseController {
    */
   async getExpensesByCategory(req, res, next) {
     try {
-      const result = await expenseService.getExpensesByCategory();
+      const userId = req.user && req.user.id
+      const result = await expenseService.getExpensesByCategory(userId);
 
       res.status(200).json({
         success: true,

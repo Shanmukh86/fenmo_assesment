@@ -5,6 +5,14 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
+function getAuthToken() {
+  try {
+    return localStorage.getItem('expense_token');
+  } catch (e) {
+    return null;
+  }
+}
+
 class ApiService {
   /**
    * Make a generic API request with error handling
@@ -20,6 +28,12 @@ class ApiService {
       'Content-Type': 'application/json',
       ...options.headers,
     };
+
+    // Attach Authorization header if token is present
+    const token = getAuthToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
     if (idempotencyKey) {
       headers['idempotency-key'] = idempotencyKey;
@@ -91,6 +105,22 @@ class ApiService {
    */
   async getExpenseById(id) {
     return this.request(`/expenses/${id}`);
+  }
+
+  async login({ email, password }) {
+    const res = await this.request('/auth/login', { method: 'POST', body: { email, password } });
+    if (res && res.data && res.data.token) {
+      try { localStorage.setItem('expense_token', res.data.token); } catch (e) {}
+    }
+    return res;
+  }
+
+  async signup({ email, password, name }) {
+    const res = await this.request('/auth/signup', { method: 'POST', body: { email, password, name } });
+    if (res && res.data && res.data.token) {
+      try { localStorage.setItem('expense_token', res.data.token); } catch (e) {}
+    }
+    return res;
   }
 }
 

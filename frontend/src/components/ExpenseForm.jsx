@@ -90,18 +90,7 @@ export function ExpenseForm({ onExpenseAdded, onError }) {
         {/* Amount Field */}
         <div>
           <label htmlFor="amount">Amount ($) *</label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleChange}
-            placeholder="0.00"
-            step="0.01"
-            min="0.01"
-            required
-            disabled={isLoading}
-          />
+          <input type="number" id="amount" name="amount" className="field" value={formData.amount} onChange={handleChange} placeholder="0.00" step="0.01" min="0.01" required disabled={isLoading} />
         </div>
 
         {/* Category Field */}
@@ -158,24 +147,8 @@ export function ExpenseForm({ onExpenseAdded, onError }) {
         </div>
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          style={{
-            backgroundColor: isLoading ? '#9ca3af' : '#2563eb',
-            color: 'white',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            opacity: isLoading ? 0.6 : 1,
-          }}
-        >
-          {isLoading ? (
-            <>
-              <span className="spinner" style={{ marginRight: '0.5rem' }} />
-              Adding...
-            </>
-          ) : (
-            '+ Add Expense'
-          )}
+        <button type="submit" disabled={isLoading} className="btn-primary">
+          {isLoading ? (<><span className="spinner" style={{ marginRight: '0.5rem' }} />Adding...</>) : '+ Add Expense'}
         </button>
       </div>
     </form>

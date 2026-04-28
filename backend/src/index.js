@@ -2,13 +2,20 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const expenseRoutes = require('./routes/expenseRoutes');
+const authRoutes = require('./routes/authRoutes');
+const summaryRoutes = require('./routes/summaryRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    const allowed = process.env.CLIENT_URL || 'http://localhost:5173';
+    if (origin === allowed || origin.startsWith('http://localhost')) return cb(null, true);
+    return cb(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 app.use(express.json());
@@ -19,7 +26,9 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api', expenseRoutes);
+app.use('/api', summaryRoutes);
 
 // 404 handler
 app.use((req, res) => {
